@@ -176,7 +176,7 @@
     <div class="results-meta" id="resultMeta"></div>
     <div class="chart-wrap">
       <h3>Sweet-Spot-Matrix</h3>
-      <div class="chart-sub">X = Kompetenz · Y = Interesse · Sweet Spot: K ≥ 4 und I ≥ 4</div>
+      <div class="chart-sub">X = Kompetenz · Y = Interesse · <span style="color:var(--gold);font-weight:500">Gold</span> = Sweet Spot (K≥4 und I≥4) · Navy = gut bewertet · Grau = tief · Zahl = Anzahl Fachgebiete</div>
       <div style="position:relative;width:100%;height:420px;"><canvas id="bubbleChart"></canvas></div>
       <div id="overlapNote" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
     </div>
@@ -351,9 +351,10 @@ function renderCoachResults(decoded){
   const cd=Object.entries(grp).map(([key,items])=>{
     const k=items[0].k,iv=items[0].i;
     const sweet=items.some(s=>s.sweet);
+    const avg=(k+iv)/2;
     return{x:k,y:iv,r:14,labels:items.map(s=>s.label),count:items.length,sweet,
-      bg:sweet?'rgba(26,39,68,0.85)':((k+iv)/2>=3?'rgba(200,168,75,0.75)':'rgba(212,221,240,0.8)'),
-      border:sweet?'#1a2744':((k+iv)/2>=3?'#a08030':'#b0bcd8')};
+      bg:sweet?'rgba(200,168,75,0.88)':(avg>=3?'rgba(26,39,68,0.75)':'rgba(212,221,240,0.8)'),
+      border:sweet?'#a08030':(avg>=3?'#1a2744':'#b0bcd8')};
   });
 
   if(ci)ci.destroy();
@@ -362,8 +363,21 @@ function renderCoachResults(decoded){
     data:{datasets:[{data:cd,backgroundColor:cd.map(d=>d.bg),borderColor:cd.map(d=>d.border),borderWidth:1.5,hoverBorderWidth:2.5}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28,right:20,bottom:8,left:8}},
       plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>{const d=c.raw;return d.labels.join(' · ')+'  (K:'+d.x+'  I:'+d.y+')';}},
-          backgroundColor:'rgba(26,39,68,0.93)',bodyColor:'white',padding:10,cornerRadius:8}},
+        tooltip:{
+          callbacks:{
+            title:()=>'',
+            label:c=>{
+              const d=c.raw;
+              const lines=d.labels.map(l=>'  '+l);
+              lines.push('');
+              lines.push('  K: '+d.x+'   I: '+d.y);
+              return lines;
+            }
+          },
+          backgroundColor:'rgba(26,39,68,0.93)',bodyColor:'white',padding:12,cornerRadius:8,
+          displayColors:false
+        }
+      },
       scales:{
         x:{min:0,max:5.8,title:{display:true,text:'Kompetenz',color:'#6b7a99',font:{size:12}},ticks:{stepSize:1,color:'#6b7a99'},grid:{color:'rgba(212,221,240,0.5)'}},
         y:{min:0,max:5.8,title:{display:true,text:'Interesse',color:'#6b7a99',font:{size:12}},ticks:{stepSize:1,color:'#6b7a99'},grid:{color:'rgba(212,221,240,0.5)'}}}
@@ -381,10 +395,12 @@ function renderCoachResults(decoded){
     const meta=c.getDatasetMeta(0);
     meta.data.forEach((el,idx)=>{
       const d=cd[idx];
-      if((d.x+d.y)/2>=3.5){
-        const lbl=d.labels.length>1?d.labels[0].split(' ')[0]+' +'+d.labels.length:(d.labels[0].length>22?d.labels[0].slice(0,20)+'…':d.labels[0]);
-        ctx2.font='500 9.5px sans-serif';
-        ctx2.fillStyle=d.sweet?'rgba(255,255,255,0.92)':'rgba(26,39,68,0.7)';
+      if((d.x+d.y)/2>=3){
+        // Always show count only — clean and uniform
+        const lbl = d.count > 1 ? String(d.count) : (d.labels[0].length>16?d.labels[0].slice(0,14)+'…':d.labels[0]);
+        ctx2.font='600 10px sans-serif';
+        // Gold bubbles: dark text; navy bubbles: white text; grey: dark text
+        ctx2.fillStyle = d.sweet ? 'rgba(80,56,0,0.85)' : (((d.x+d.y)/2>=3&&!d.sweet) ? 'rgba(255,255,255,0.92)' : 'rgba(26,39,68,0.7)');
         ctx2.textAlign='center';ctx2.fillText(lbl,el.x,el.y+3.5);
       }
     });
