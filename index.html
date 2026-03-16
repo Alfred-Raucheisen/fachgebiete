@@ -395,12 +395,12 @@ function renderCoachResults(decoded){
     const meta=c.getDatasetMeta(0);
     meta.data.forEach((el,idx)=>{
       const d=cd[idx];
-      if((d.x+d.y)/2>=3){
+      if(true){  // label all bubbles
         // Always show count — clean and uniform for all bubbles
         const lbl = String(d.count);
         ctx2.font='600 10px sans-serif';
         // Gold bubbles: dark text; navy bubbles: white text; grey: dark text
-        ctx2.fillStyle = d.sweet ? 'rgba(80,56,0,0.85)' : (((d.x+d.y)/2>=3&&!d.sweet) ? 'rgba(255,255,255,0.92)' : 'rgba(26,39,68,0.7)');
+        ctx2.fillStyle = d.sweet ? 'rgba(80,56,0,0.85)' : (!d.sweet && (d.x+d.y)/2>=3 ? 'rgba(255,255,255,0.92)' : 'rgba(80,80,100,0.8)');
         ctx2.textAlign='center';ctx2.fillText(lbl,el.x,el.y+3.5);
       }
     });
