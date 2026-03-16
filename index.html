@@ -396,8 +396,8 @@ function renderCoachResults(decoded){
     meta.data.forEach((el,idx)=>{
       const d=cd[idx];
       if((d.x+d.y)/2>=3){
-        // Always show count only — clean and uniform
-        const lbl = d.count > 1 ? String(d.count) : (d.labels[0].length>16?d.labels[0].slice(0,14)+'…':d.labels[0]);
+        // Always show count — clean and uniform for all bubbles
+        const lbl = String(d.count);
         ctx2.font='600 10px sans-serif';
         // Gold bubbles: dark text; navy bubbles: white text; grey: dark text
         ctx2.fillStyle = d.sweet ? 'rgba(80,56,0,0.85)' : (((d.x+d.y)/2>=3&&!d.sweet) ? 'rgba(255,255,255,0.92)' : 'rgba(26,39,68,0.7)');
